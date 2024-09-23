@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Mount essential filesystems
+echo "Mounting filesystems..."
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t tmpfs tmpfs /tmp
+
+# Optionally mount any other disks listed in /etc/fstab
+if [ -f /etc/fstab ]; then
+    echo "Mounting filesystems from /etc/fstab..."
+    mount -a
+fi
+
+# Start the main BusyBox init
+echo "Starting /sbin/init..."
+exec /sbin/init
+

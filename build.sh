@@ -74,17 +74,21 @@ setup_rootfs() {
 
     cd "$ROOTFS_DIR" || exit 1
 
-    mkdir -p bin sbin usr lib proc
+    mkdir -p bin etc sbin usr lib proc
 
     cp -r "$BUILD_DIR/busybox-$BUSYBOX_VERSION/_install"/* "$ROOTFS_DIR"
 
     cd -
 }
 
+setup_init() {
+    cp -a "$BUILD_ROOT_DIR/init/." "$ROOTFS_DIR/"
+}
+
 # Function to create CPIO archive of the root filesystem
 create_cpio_archive() {
     cd "$ROOTFS_DIR" || exit 1
-    find . | cpio -o -H newc | gzip > "$BUILD_DIR/rootfs.cpio.gz"
+    find . | cpio -o -H newc | gzip > "$BUILD_DIR/rootfs.cpio.xz"
 }
 
 # Function to create and format a virtual floppy image in FAT32
@@ -109,7 +113,7 @@ install_syslinux() {
 	DEFAULT linux
 	LABEL linux
   	KERNEL /bzImage
-  	APPEND initrd=/rootfs.cpio.gz
+  	APPEND initrd=/rootfs.cpio.xz
 EOF
 
     # Unmount the floppy image
@@ -125,7 +129,7 @@ copy_files_to_floppy() {
     sudo mount -o loop "$FLOPPY_IMG" "$MNT_DIR"
 
     sudo cp "$BUILD_DIR/linux-$KERNEL_VERSION/arch/x86/boot/bzImage" "$MNT_DIR/bzImage"
-    sudo cp "$BUILD_DIR/rootfs.cpio.gz" "$MNT_DIR/rootfs.cpio.gz"
+    sudo cp "$BUILD_DIR/rootfs.cpio.xz" "$MNT_DIR/rootfs.cpio.xz"
 
     # Unmount the floppy image
     sudo umount "$MNT_DIR"
@@ -140,6 +144,7 @@ download_busybox
 build_busybox
 
 setup_rootfs
+setup_init
 create_cpio_archive
 
 create_floppy_image
