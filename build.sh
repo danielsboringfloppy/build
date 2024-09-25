@@ -74,7 +74,7 @@ setup_rootfs() {
 
     cd "$ROOTFS_DIR" || exit 1
 
-    mkdir -p bin etc sbin usr lib proc
+    mkdir -p bin dev etc sbin usr lib proc sys
 
     cp -r "$BUILD_DIR/busybox-$BUSYBOX_VERSION/_install"/* "$ROOTFS_DIR"
 
